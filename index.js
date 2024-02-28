@@ -2,7 +2,7 @@ const express = require('express')
 const { MongoClient, ObjectId } = require('mongodb')
 
 const dbUrl = 'mongodb+srv://admin:JHy9QG6y9kLJItWK@cluster0.hvxo0io.mongodb.net'
-const dbName = 'OceanJornadaBackendFev2024'
+const dbName = 'Ocean-Jornada-Backend-Fev-2024'
 
 async function main() {
   const client = new MongoClient(dbUrl)
@@ -66,7 +66,35 @@ async function main() {
     res.send(item)
   })
 
+  // Update -> [PUT] /item/:id
+  app.put('/item/:id', async function (req, res) {
+    // Pegamos o ID recebido pela rota
+    const id = req.params.id
+
+    // Pegamos o novo item do corpo da requisição
+    const novoItem = req.body
+
+    // Atualizamos o documento na collection
+    await collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: novoItem }
+    )
+
+    // Enviamos uma mensagem de sucesso
+    res.send('Item atualizado com sucesso!')
+  })
+
+  // Delete -> [DELETE] /item/:id
+  app.delete('/item/:id', async function (req, res) {
+    // Pegamos o ID da rota
+    const id = req.params.id
+
+    // Realizamos a operação de deleteOne
+    await collection.deleteOne({ _id: new ObjectId(id) })
+
+    // Enviamos uma mensagem de sucesso
+    res.send('Item removido com sucesso!')
+  })
+
   app.listen(3000)
 }
-
-main()
