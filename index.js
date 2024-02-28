@@ -1,7 +1,7 @@
 const express = require('express')
-const { MongoClient } = require('mongodb')
+const { MongoClient, ObjectId } = require('mongodb')
 
-const dbUrl = 'mongodb+srv://adm:yaGwHORED26VRdC4@cluster0.211sald.mongodb.net'
+const dbUrl = 'mongodb+srv://admin:JHy9QG6y9kLJItWK@cluster0.hvxo0io.mongodb.net'
 const dbName = 'OceanJornadaBackendFev2024'
 
 async function main() {
@@ -14,55 +14,58 @@ async function main() {
   const app = express()
 
   app.get('/', function (req, res) {
-    res.send('Hello World!')
+    res.send('Hello, World!')
   })
 
   app.get('/oi', function (req, res) {
     res.send('Olá, mundo!')
   })
 
-  //Lista de Personagens
+  // Lista de Personagens
   const lista = ['Rick Sanchez', 'Morty Smith', 'Summer Smith']
+  //              0               1              2
 
   const db = client.db(dbName)
   const collection = db.collection('items')
 
-  //Read All --> [GET] / item
+  // Read All -> [GET] /item
   app.get('/item', async function (req, res) {
-    //Realizamos a operçãoa de find na collection do MongoDB
+    // Realizamos a operação de find na collection do MongoDB
     const items = await collection.find().toArray()
 
-    //Envio a lista inteira como resposta HTTP
+    // Envio todos os documentos como resposta HTTP
     res.send(items)
   })
 
-  //Read By ID --> [GET] /item/:id
-  app.get('/item/:id', function (req, res) {
-    //Acesso o ID no parâmetro de rota
+  // Read By ID -> [GET] /item/:id
+  app.get('/item/:id', async function (req, res) {
+    // Acesso o ID no parâmetro de rota
     const id = req.params.id
 
-    //Acesso item na lista baseado no ID recebido
-    const item = lista[id]
+    // Acesso o item na collection baseado no ID recebido
+    const item = await collection.findOne({
+      _id: new ObjectId(id)
+    })
 
-    //Envio o item obtido como resposta HTTP
-    res.send(id)
+    // Envio o item obtido como resposta HTTP
+    res.send(item)
   })
 
-  //Sinalizamos que o corpo da requisição está em JSOM
+  // Sinalizamos que o corpo da requisição está em JSON
   app.use(express.json())
 
-  //Create --> [POST] /item
+  // Create -> [POST] /item
   app.post('/item', function (req, res) {
-    //Extraímos o corpo da requisição 
+    // Extraímos o corpo da requisição
     const body = req.body
 
-    //Pegamos o nome (string) que foi enviado dentro do corpo
+    // Pegamos o nome (string) que foi enviado dentro do corpo
     const item = body.nome
 
-    //Colocamos o nome dentro da lista de itens
+    // Colocamos o nome dentro da lista de itens
     lista.push(item)
 
-    //Enviamos uma resposta de sucesso 
+    // Enviamos uma resposta de sucesso
     res.send('Item adicionado com sucesso!')
   })
 
